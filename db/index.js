@@ -89,6 +89,25 @@ async function getUserById(userId) {
   return user;
 }
 
+//Get User by Username
+async function getUserByUsername(username) {
+  try {
+    const {
+      rows: [user],
+    } = await client.query(
+      `SELECT *
+      FROM users
+      WHERE username=$1;`,
+      [username]
+    );
+
+    return user;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 //POST METHODS
 
 //Create Post
@@ -335,14 +354,11 @@ async function getAllTags() {
 
 //Add Tags to Post
 async function addTagsToPost(postId, tagList) {
-  console.log("add tags to post", postId, tagList);
   try {
     if (tagList.length > 0) {
       const createPostTagPromises = tagList.map((tag) =>
         createPostTag(postId, tag.id)
       );
-
-      console.log(createPostTagPromises);
 
       await Promise.all(createPostTagPromises);
       return await getPostById(postId);
@@ -356,6 +372,7 @@ module.exports = {
   client,
   getAllUsers,
   getUserById,
+  getUserByUsername,
   createUser,
   updateUser,
   getAllPosts,
