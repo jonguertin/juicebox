@@ -1,5 +1,4 @@
 const { Client } = require("pg");
-
 const client = new Client("postgres://localhost:5432/juicebox-dev");
 
 //HELPER FUNCTIONS
@@ -319,6 +318,21 @@ async function createPostTag(postId, tagId) {
   }
 }
 
+//Get all tags
+async function getAllTags() {
+  try {
+    const { rows: tags } = await client.query(
+      `SELECT *
+          FROM tags;`
+    );
+
+    return tags;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 //Add Tags to Post
 async function addTagsToPost(postId, tagList) {
   console.log("add tags to post", postId, tagList);
@@ -350,6 +364,7 @@ module.exports = {
   getPostsByTagName,
   createPost,
   updatePost,
+  getAllTags,
   createTags,
   addTagsToPost,
 };
