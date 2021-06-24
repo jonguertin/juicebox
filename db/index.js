@@ -103,7 +103,6 @@ async function getUserByUsername(username) {
 
     return user;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -112,7 +111,6 @@ async function getUserByUsername(username) {
 
 //Create Post
 async function createPost({ authorId, title, content, tags = [] }) {
-  console.log("Create post items:", authorId, title, content, tags);
   try {
     const {
       rows: [post],
@@ -124,10 +122,10 @@ async function createPost({ authorId, title, content, tags = [] }) {
     `,
       [authorId, title, content]
     );
-    console.log("before create tags is run", tags);
+
     const tagList = await createTags(tags);
-    console.log("tagList", tagList);
-    // return await addTagsToPost(post.id, tagList);
+
+    return await addTagsToPost(post.id, tagList);
   } catch (error) {
     console.log(`Error creating post!`);
     throw error;
@@ -137,7 +135,7 @@ async function createPost({ authorId, title, content, tags = [] }) {
 //Update Post
 async function updatePost(postId, fields = {}) {
   const { tags } = fields;
-  console.log(tags);
+
   delete fields.tags;
 
   const setString = Object.keys(fields)
@@ -235,6 +233,13 @@ async function getPostById(postId) {
     [postId]
   );
 
+  if (!post) {
+    throw {
+      name: "PostNotFoundError",
+      message: "Could not find a post with that postId",
+    };
+  }
+
   const { rows: tags } = await client.query(
     `SELECT tags.*
       FROM tags
@@ -287,19 +292,13 @@ async function createTags(tagList) {
   if (tagList.length === 0) {
     return;
   }
-  console.log("before createTags runs", tagList);
+
   try {
     const insertValues = tagList
       .map((_, index) => `$${index + 1}`)
       .join("), (");
 
     const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
-
-    console.log(Object.values(tagList));
-
-    console.log(`INSERT INTO tags(name)
-    VALUES (${insertValues})
-    ON CONFLICT (name) DO NOTHING;`);
 
     await client.query(
       `INSERT INTO tags(name)
@@ -347,7 +346,6 @@ async function getAllTags() {
 
     return tags;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
