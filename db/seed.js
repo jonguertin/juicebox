@@ -118,6 +118,7 @@ async function createInitialPosts() {
       title: "First Post",
       content:
         "This is my first post. I hope I love writing blogs as much as I love writing them.",
+      tags: ["#happy", "#living"],
     });
     console.log("Finished creating Albert.");
 
