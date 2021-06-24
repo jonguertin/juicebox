@@ -7,8 +7,10 @@ const server = express();
 const bodyParser = require("body-parser");
 server.use(bodyParser.json());
 
-const morgan = require("morgan");
-server.use(morgan("dev"));
+if (process.env.NODE_ENV != "production") {
+  const morgan = require("morgan");
+  server.use(morgan("dev"));
+}
 
 server.use((req, res, next) => {
   console.log("<----Body Logger START---->");
